@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>لوحة تحكم المعلم</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+    <div class="teacher-container">
+        <h1>👨‍🏫 لوحة تحكم المعلم</h1>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('upload')">📤 رفع درس</button>
+            <button class="tab-button" onclick="showTab('videos')">📁 المحاضرات</button>
+            <button class="tab-button" onclick="showTab('add_student')">➕ إضافة طالب</button>
+            <button class="tab-button" onclick="showTab('exam')">📝 إضافة امتحان</button>
+        </div>
+
+        <!-- رفع درس -->
+        <div id="upload" class="tab-content">
+            <form id="uploadLectureForm">
+                <input type="text" id="lectureTitle" placeholder="عنوان الدرس" required />
+                <select id="lectureGrade">
+                    <option value="1">الصف الأول</option>
+                </select>
+                <input type="file" id="lectureFile" accept="video/*" required />
+                <button type="submit" class="btn">رفع</button>
+            </form>
+        </div>
+
+        <!-- عرض الفيديوهات -->
+        <div id="videos" class="tab-content hidden">
+            <div id="lectureList"></div>
+        </div>
+
+        <!-- إضافة طالب -->
+        <div id="add_student" class="tab-content hidden">
+            <form id="addStudentForm">
+                <input type="text" id="studentUsername" placeholder="اسم المستخدم" required />
+                <input type="password" id="studentPassword" placeholder="كلمة المرور" required />
+                <select id="studentGrade">
+                    <option value="1">الصف الأول</option>
+                </select>
+                <button type="submit" class="btn">إضافة</button>
+            </form>
+        </div>
+
+        <!-- إضافة امتحان -->
+        <div id="exam" class="tab-content hidden">
+            <form id="examForm">
+                <input type="text" id="examTitle" placeholder="عنوان الامتحان" required />
+                <select id="examGrade">
+                    <option value="1">الصف الأول</option>
+                </select>
+                <input type="file" id="examFile" accept=".pdf,.docx" required />
+                <button type="submit" class="btn">رفع الامتحان</button>
+            </form>
+        </div>
+
+        <div id="message" class="fade-message"></div>
+    </div>
+
+    <script>
+        function showTab(id) {
+            document.querySelectorAll(".tab-content").forEach(div => div.classList.add("hidden"));
+            document.getElementById(id).classList.remove("hidden");
+            document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+            event.target.classList.add("active");
+        }
+
+        // رفع درس
+        document.getElementById("uploadLectureForm").onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("lectureTitle").value);
+            formData.append("grade", document.getElementById("lectureGrade").value);
+            formData.append("video", document.getElementById("lectureFile").files[0]);
+
+            fetch("/upload_lecture", {
+                method: "POST",
+                body: formData,
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showMsg(data.message);
+                    loadLectures();
+                });
+        };
+
+        // إضافة طالب
+        document.getElementById("addStudentForm").onsubmit = function (e) {
+            e.preventDefault();
+            const body = {
+                username: document.getElementById("studentUsername").value,
+                password: document.getElementById("studentPassword").value,
+                grade: document.getElementById("studentGrade").value
+            };
+
+            fetch("/add_student", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showMsg(data.message);
+                });
+        };
+
+        // تحميل المحاضرات
+        function loadLectures() {
+            fetch("/get_lectures")
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("lectureList");
+                    container.innerHTML = "";
+                    data.lectures.forEach(lec => {
+                        const div = document.createElement("div");
+                        div.className = "lecture-item";
+                        div.innerHTML = `
+              <h3>${lec.title} - الصف ${lec.grade}</h3>
+              <video controls width="100%">
+                <source src="/uploads/${lec.filename}" type="video/mp4" />
+              </video>
+              <button onclick="deleteLecture(${lec.id})" class="btn delete">🗑️ حذف</button>
+              <hr />
+            `;
+                        container.appendChild(div);
+                    });
+                });
+        }
+
+        function deleteLecture(id) {
+            if (!confirm("هل أنت متأكد من حذف هذا الدرس؟")) return;
+            fetch("/delete_lecture", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showMsg(data.message);
+                    loadLectures();
+                });
+        }
+
+        function showMsg(msg) {
+            const el = document.getElementById("message");
+            el.textContent = msg;
+            el.classList.add("show");
+            setTimeout(() => el.classList.remove("show"), 3000);
+        }
+
+        // تحميل المحاضرات عند فتح الصفحة
+        loadLectures();
+    </script>
+</body>
+
+</html>

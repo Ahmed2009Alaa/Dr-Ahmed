@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>الطالب - منصة العميد</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .tab-button.active {
+            background-color: #eee;
+            font-weight: bold;
+        }
+
+        .lecture-item,
+        .exam-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="student-container">
+        <h1>👨‍🎓 مرحبًا بك في منصة العميد</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('lectures')">📚 دروسك</button>
+            <button class="tab-button" onclick="showTab('exams')">📝 امتحاناتك</button>
+            <button class="tab-button" onclick="showTab('notes')">📩 ملاحظات المعلم</button>
+        </div>
+
+        <!-- المحاضرات -->
+        <div id="lectures" class="tab-content">
+            <div id="studentLecturesList">⏳ تحميل الدروس...</div>
+        </div>
+
+        <!-- الامتحانات -->
+        <div id="exams" class="tab-content hidden">
+            <div id="studentExamsList">⏳ تحميل الامتحانات...</div>
+        </div>
+
+        <!-- الملاحظات -->
+        <div id="notes" class="tab-content hidden">
+            <p>📢 سيتم إضافة الملاحظات هنا قريبًا (تجريبي)</p>
+        </div>
+    </div>
+
+    <script>
+        const grade = parseInt("{{ session.get('grade', 0) }}");
+
+        function showTab(id) {
+            document.querySelectorAll(".tab-content").forEach(div => div.classList.add("hidden"));
+            document.getElementById(id).classList.remove("hidden");
+            document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+            event.target.classList.add("active");
+        }
+
+        function loadStudentLectures() {
+            fetch("/get_lectures")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("studentLecturesList");
+                    list.innerHTML = "";
+
+                    const filtered = data.lectures.filter(lec => lec.grade == grade);
+
+                    if (filtered.length === 0) {
+                        list.innerHTML = "<p>❗ لا توجد دروس حالياً.</p>";
+                        return;
+                    }
+
+                    filtered.forEach(lec => {
+                        const div = document.createElement("div");
+                        div.className = "lecture-item";
+                        div.innerHTML = `
+                            <h3>${lec.title}</h3>
+                            <video controls width="100%">
+                                <source src="/uploads/${lec.filename}" type="video/mp4">
+                            </video>
+                            <hr />
+                        `;
+                        list.appendChild(div);
+                    });
+                });
+        }
+
+        function loadStudentExams() {
+            fetch("/get_exams")
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("studentExamsList");
+                    list.innerHTML = "";
+
+                    const filtered = data.exams.filter(ex => ex.grade == grade);
+
+                    if (filtered.length === 0) {
+                        list.innerHTML = "<p>❗ لا توجد امتحانات حالياً.</p>";
+                        return;
+                    }
+
+                    filtered.forEach(ex => {
+                        const div = document.createElement("div");
+                        div.className = "exam-item";
+                        div.innerHTML = `
+                            <h3>${ex.title}</h3>
+                            <a href="/uploads/${ex.filename}" target="_blank">📄 فتح الامتحان</a>
+                            <hr />
+                        `;
+                        list.appendChild(div);
+                    });
+                });
+        }
+
+        window.onload = () => {
+            loadStudentLectures();
+            loadStudentExams();
+        };
+    </script>
+</body>
+
+</html>

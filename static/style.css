@@ -1,0 +1,160 @@
+body {
+  font-family: 'Cairo', sans-serif;
+  background: linear-gradient(to bottom right, #0f172a, #1e3a8a);
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+}
+
+.teacher-container,
+.student-container {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
+
+h1 {
+  font-size: 36px;
+  margin-bottom: 30px;
+  color: #facc15;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 15px;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  transition: 0.3s ease;
+}
+
+.tab-button.active,
+.tab-button:hover {
+  background-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+input,
+select {
+  display: block;
+  margin: 12px auto;
+  padding: 12px;
+  width: 85%;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background-color: #f3f4f6;
+  color: #111;
+}
+
+input::placeholder {
+  color: #888;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #3b82f6;
+}
+
+.btn {
+  padding: 12px 30px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #059669;
+  transform: scale(1.05);
+}
+
+.btn.delete {
+  background-color: #ef4444;
+}
+
+.btn.delete:hover {
+  background-color: #dc2626;
+}
+
+.file-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #6366f1;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.file-upload input {
+  display: none;
+}
+
+.file-name {
+  font-weight: bold;
+  color: #fbbf24;
+  margin-top: 5px;
+}
+
+.lecture-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  text-align: right;
+}
+
+.lecture-item h3 {
+  margin: 0 0 10px 0;
+  color: #fcd34d;
+}
+
+.fade-message {
+  margin-top: 20px;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  color: #22c55e;
+}
+
+.fade-message.show {
+  opacity: 1;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

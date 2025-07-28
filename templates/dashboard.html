@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <title>منصة العميد - الطالب</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <h2>مرحبًا بك في منصة العميد – الصف الأول</h2>
+
+        <h3>📚 الدروس</h3>
+        {% for lesson in lessons %}
+        <div class="lesson-card">
+            <h4>{{ lesson[1] }}</h4>
+            <p>{{ lesson[2] }}</p>
+            <a href="/uploads/{{ lesson[3] }}" target="_blank">تحميل / مشاهدة</a>
+            <p><small>تم رفعه بتاريخ: {{ lesson[4] }}</small></p>
+        </div>
+        {% endfor %}
+
+        <h3>💬 ملاحظات المعلم</h3>
+        {% for note in notes %}
+        <div class="lesson-card" style="background:#eaf7ff">
+            <p>{{ note[0] }}</p>
+            <p><small>{{ note[1] }}</small></p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

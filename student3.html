@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الطالب - الصف الثالث</title>
+</head>
+
+<body>
+    <header>
+        منصة العميد - الطالب
+    </header>
+    <div class="main-container">
+        <h2>مرحباً بك، <span id="student-name"></span> 👋</h2>
+        <div id="lesson-list"></div>
+
+        <h3>ملاحظات المعلم:</h3>
+        <div id="note-list"></div>
+
+        <button onclick="logout()">🚪 تسجيل الخروج</button>
+    </div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:5000";
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        document.getElementById("student-name").textContent = user.name;
+
+        function logout() {
+            localStorage.removeItem("user");
+            window.location.href = "index.html";
+        }
+
+        function fetchLessons() {
+            fetch(`${API_BASE}/lessons/${user.grade}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("lesson-list");
+                    container.innerHTML = "";
+                    data.forEach(lesson => {
+                        const div = document.createElement("div");
+                        div.className = "lesson-box";
+                        div.innerHTML = `
+              <h4>${lesson.title}</h4>
+              <p>${lesson.description}</p>
+              <a href="${API_BASE}/uploads/${lesson.filename}" target="_blank">📥 تحميل الدرس</a>
+              <button onclick="markWatched(${lesson.id})">✔️ شاهدت الدرس</button>
+            `;
+                        container.appendChild(div);
+                    });
+                });
+        }
+
+        function fetchNotes() {
+            fetch(`${API_BASE}/notes/${user.username}`)
+                .then(res => res.json())
+                .then(data => {
+                    const noteList = document.getElementById("note-list");
+                    noteList.innerHTML = "";
+                    data.forEach(note => {
+                        const div = document.createElement("div");
+                        div.className = "note-box";
+                        div.textContent = note.message;
+                        noteList.appendChild(div);
+                    });
+                });
+        }
+
+        function markWatched(lesson_id) {
+            fetch(`${API_BASE}/mark_watched`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: user.id, lesson_id })
+            }).then(() => alert("✅ تم تسجيل المشاهدة"));
+        }
+
+        fetchLessons();
+        fetchNotes();
+    </script>
+</body>
+
+</html>
