@@ -153,6 +153,23 @@
             el.classList.add("show");
             setTimeout(() => el.classList.remove("show"), 3000);
         }
+        // رفع امتحان
+        document.getElementById("examForm").onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("examTitle").value);
+            formData.append("grade", document.getElementById("examGrade").value);
+            formData.append("exam", document.getElementById("examFile").files[0]);
+
+            fetch("/upload_exam", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showMsg(data.message);
+                });
+        };
 
         // تحميل المحاضرات عند فتح الصفحة
         loadLectures();
